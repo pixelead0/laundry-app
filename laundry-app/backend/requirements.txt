@@ -2,7 +2,7 @@ fastapi
 uvicorn
 sqlalchemy[asyncio]
 aiosqlite
+asyncpg
 pydantic-settings
 websockets
 python-multipart
-psycopg2-binary
