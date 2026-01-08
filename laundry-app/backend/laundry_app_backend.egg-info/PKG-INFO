@@ -1,0 +1,55 @@
+Metadata-Version: 2.4
+Name: laundry-app-backend
+Version: 1.7.0
+Summary: Laundry Management System Backend API
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.128.0
+Requires-Dist: uvicorn>=0.40.0
+Requires-Dist: sqlalchemy[asyncio]>=2.0.45
+Requires-Dist: aiosqlite>=0.22.1
+Requires-Dist: pydantic-settings>=2.12.0
+Requires-Dist: websockets>=15.0.1
+Requires-Dist: python-multipart>=0.0.21
+Provides-Extra: test
+Requires-Dist: pytest>=9.0.0; extra == "test"
+Requires-Dist: pytest-asyncio>=1.3.0; extra == "test"
+Requires-Dist: pytest-cov>=7.0.0; extra == "test"
+Requires-Dist: httpx>=0.28.0; extra == "test"
+
+# Laundry App Backend
+
+A professional FastAPI backend for the Laundry Management System.
+
+## 🏗️ Architecture
+
+- **`app/api`**: REST API Routers and WebSocket endpoints.
+- **`app/core`**: Configuration and settings (Pydantic).
+- **`app/db`**: Database session and connection logic.
+- **`app/models`**: SQLAlchemy ORM models.
+- **`app/schemas`**: Pydantic data transfer objects (DTOs).
+- **`app/services`**: Business logic isolation (Waitlist calculation).
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Python 3.11+
+- Virtual Environment (recommended)
+
+### Installation
+
+```bash
+cd laundry-app/backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Running
+
+The project includes a unified `start.sh` script in the root, but to run the backend manually:
+
+```bash
+# From project root
+python -m uvicorn backend.app.main:app --port 8000 --reload
+```

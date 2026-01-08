@@ -23,40 +23,50 @@ docker-compose up --build
 
 ### Option 1: Railway.app (Recommended)
 
+**Important**: Deploy backend and frontend as **separate Railway services**.
+
+#### Backend Service
+
 1. **Create Railway Account**: https://railway.app
 2. **Create New Project** → "Empty Project"
 3. **Add PostgreSQL Database**:
    - Click "New" → "Database" → "Add PostgreSQL"
-   - Railway will auto-generate `DATABASE_URL`
+   - Railway auto-generates `DATABASE_URL`
 
 4. **Add Backend Service**:
-   - Click "New" → "GitHub Repo" → Select `pixelead0/laundry-app`
-   - **Settings**:
-     - Root Directory: `laundry-app/backend`
-     - Custom Build Command: (leave empty, uses Dockerfile)
-     - Custom Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 4`
-   - **Environment Variables**:
+   - Click "New" → "GitHub Repo" → `pixelead0/laundry-app`
+   - **Settings → General**:
+     - Root Directory: `/laundry-app/backend`
+     - Watch Paths: `/laundry-app/backend/**`
+   - **Settings → Deploy**:
+     - Build Command: (empty - uses Dockerfile)
+     - Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 4`
+   - **Variables**:
      ```
      DATABASE_URL=${{Postgres.DATABASE_URL}}
      BACKEND_CORS_ORIGINS=["https://your-frontend-url.railway.app"]
-     SECRET_KEY=your-secret-key-here
+     SECRET_KEY=generate-random-32-char-string
      ```
 
-5. **Add Frontend Service**:
-   - Click "New" → "GitHub Repo" → Select `pixelead0/laundry-app` (again)
-   - **Settings**:
-     - Root Directory: `laundry-app/frontend`
-     - Custom Build Command: (leave empty, uses Dockerfile)
-     - Custom Start Command: `node server.js`
-   - **Environment Variables**:
+#### Frontend Service
+
+5. **Add Frontend Service** (same project):
+   - Click "New" → "GitHub Repo" → `pixelead0/laundry-app` (again)
+   - **Settings → General**:
+     - Root Directory: `/laundry-app/frontend`
+     - Watch Paths: `/laundry-app/frontend/**`
+   - **Settings → Deploy**:
+     - Build Command: (empty - uses Dockerfile)
+     - Start Command: `node server.js`
+   - **Variables**:
      ```
      NEXT_PUBLIC_API_URL=https://your-backend-url.railway.app
      NEXT_PUBLIC_WS_URL=wss://your-backend-url.railway.app/ws
      ```
 
-6. **Deploy**: Railway will auto-deploy on every push to `main`
+6. **Deploy**: Railway auto-deploys on push to `main`
 
-**Note**: Railway uses Dockerfiles automatically. The `railway.*.json` files are optional configs for advanced settings.
+**Note**: Railway detects Dockerfiles automatically. Each service needs its own root directory.
 
 ### Option 2: Docker Hub + Any Cloud Provider
 
