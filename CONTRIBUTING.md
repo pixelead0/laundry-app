@@ -31,7 +31,7 @@ Thank you for your interest in contributing! We welcome contributions from every
 
 1.  **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/laundry-app.git
+    git clone https://github.com/pixelead0/laundry-app.git
     cd laundry-app
     ```
 
