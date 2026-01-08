@@ -24,28 +24,39 @@ docker-compose up --build
 ### Option 1: Railway.app (Recommended)
 
 1. **Create Railway Account**: https://railway.app
-2. **Connect GitHub Repository**
-3. **Add Services**:
-   - Backend: `laundry-app/backend`
-   - Frontend: `laundry-app/frontend`
-   - Database: PostgreSQL (from Railway templates)
+2. **Create New Project** → "Empty Project"
+3. **Add PostgreSQL Database**:
+   - Click "New" → "Database" → "Add PostgreSQL"
+   - Railway will auto-generate `DATABASE_URL`
 
-4. **Configure Environment Variables**:
+4. **Add Backend Service**:
+   - Click "New" → "GitHub Repo" → Select `pixelead0/laundry-app`
+   - **Settings**:
+     - Root Directory: `laundry-app/backend`
+     - Custom Build Command: (leave empty, uses Dockerfile)
+     - Custom Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 4`
+   - **Environment Variables**:
+     ```
+     DATABASE_URL=${{Postgres.DATABASE_URL}}
+     BACKEND_CORS_ORIGINS=["https://your-frontend-url.railway.app"]
+     SECRET_KEY=your-secret-key-here
+     ```
 
-**Backend Service**:
-```
-DATABASE_URL=${{Postgres.DATABASE_URL}}
-BACKEND_CORS_ORIGINS=["https://your-frontend-url.railway.app"]
-SECRET_KEY=your-secret-key-here
-```
+5. **Add Frontend Service**:
+   - Click "New" → "GitHub Repo" → Select `pixelead0/laundry-app` (again)
+   - **Settings**:
+     - Root Directory: `laundry-app/frontend`
+     - Custom Build Command: (leave empty, uses Dockerfile)
+     - Custom Start Command: `node server.js`
+   - **Environment Variables**:
+     ```
+     NEXT_PUBLIC_API_URL=https://your-backend-url.railway.app
+     NEXT_PUBLIC_WS_URL=wss://your-backend-url.railway.app/ws
+     ```
 
-**Frontend Service**:
-```
-NEXT_PUBLIC_API_URL=https://your-backend-url.railway.app
-NEXT_PUBLIC_WS_URL=wss://your-backend-url.railway.app/ws
-```
+6. **Deploy**: Railway will auto-deploy on every push to `main`
 
-5. **Deploy**: Railway will auto-deploy on every push to `main`
+**Note**: Railway uses Dockerfiles automatically. The `railway.*.json` files are optional configs for advanced settings.
 
 ### Option 2: Docker Hub + Any Cloud Provider
 
