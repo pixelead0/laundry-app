@@ -4,7 +4,7 @@ This document serves as the master context for the Laundry Management Applicatio
 
 ## 1. Project Overview
 **Goal**: A "super aesthetic" web application to manage laundry machines (washers/dryers), eliminating manual tracking.
-**Status**: v1.4.0 (Split Waitlists, Maintenance Handling, negative timers).
+**Status**: v1.4.1 (Stabilization, Split Waitlists, negative timers).
 **Target Users**:
 - **Public**: View-only dashboard showing machine status, stacked waitlists (Washer/Dryer), and overdue alerts.
 - **Admin**: Staff dashboard with separate queue tabs, machine configuration, and failure reporting.

@@ -2,11 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.4.1] - Stabilization & Sync Fixes
+### Fixed
+- **Backend Stability**: Resolved a `TypeError` in the `get_turns` endpoint caused by mixed naive/aware datetime comparisons.
+- **Sync Accuracy**: Fixed the 'Active Turns' list in both panels by standardizing all calculations to UTC.
+- **UI Consistency**: Ensured that the initial REST fetch and subsequent WebSocket updates parse dates identically to avoid "timer jumps".
+
 ## [v1.4.0] - Timer Perfection & Infrastructure
 ### Added
 - **Timer Overdue Blink**: Machines now pulse red and count negative time when a cycle is overdue.
-- **Improved Logging**: `start.sh` now separates Frontend and Backend logs into `frontend.log` and `backend.log` with colored terminal prefixes.
-- **Timezone Awareness**: Backend now uses timezone-aware UTC datetimes to prevent client-side timer glitches.
+- **Improved Logging**: `start.sh` now separates Frontend and Backend logs with colored terminal prefixes.
+- **Timezone Awareness**: Initial implementation of UTC across models to prevent timezone-related display bugs.
 
 ## [v1.3.0] - Split Waitlists
 ### Added

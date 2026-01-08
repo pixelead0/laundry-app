@@ -19,6 +19,6 @@ build/
 # Project specific
 backend.log
 frontend.log
-laundry-app/backend/laundry.db
-laundry-app/backend/laundry.db-journal
+laundry-app/laundry.db
+laundry-app/laundry.db-journal
 tests/

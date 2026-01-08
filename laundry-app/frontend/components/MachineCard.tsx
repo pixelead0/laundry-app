@@ -31,7 +31,12 @@ export function MachineCard({ machine, onAssign, onComplete, onReportFailure, on
         }
 
         const interval = setInterval(() => {
-            const end = new Date(machine.current_cycle_end!).getTime()
+            let endTimeStr = machine.current_cycle_end!
+            // If the string doesn't end with Z or an offset, assume UTC
+            if (!endTimeStr.endsWith('Z') && !endTimeStr.includes('+') && !endTimeStr.includes('-')) {
+                endTimeStr += 'Z'
+            }
+            const end = new Date(endTimeStr).getTime()
             const now = new Date().getTime()
             const diff = end - now
 

@@ -72,6 +72,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
 # --- APIs ---
 
+from pydantic import BaseModel, field_validator
+
 class MachineResponse(BaseModel):
     id: int
     name: str
@@ -82,6 +84,13 @@ class MachineResponse(BaseModel):
     machine_order: int
     current_cycle_end: datetime | None = None
     current_turn_id: int | None = None
+
+    @field_validator('current_cycle_end')
+    @classmethod
+    def ensure_utc(cls, v: datetime | None) -> datetime | None:
+        if v and v.tzinfo is None:
+            return v.replace(tzinfo=timezone.utc)
+        return v
 
     class Config:
         orm_mode = True
@@ -96,110 +105,101 @@ async def get_machines(db: AsyncSession = Depends(get_db)):
     # Let's rely on frontend assuming UTC for now if naive.
     return machines
 
+class SimMachine:
+    def __init__(self, end_time, cycle_time):
+        self.current_cycle_end = end_time
+        self.default_cycle_time = cycle_time
+
 @app.get("/turns")
 async def get_turns(db: AsyncSession = Depends(get_db)):
-    # 1. Get waiting and in_progress turns
+    # 1. Get all active turns
     result = await db.execute(select(Turn).filter(Turn.status.in_(["waiting", "in_progress"])).order_by(Turn.created_at))
-    turns = result.scalars().all()
+    all_turns = result.scalars().all()
 
-    # 2. Get all machines for calculation mechanism
-
+    # 2. Get all machines
     m_result = await db.execute(select(Machine))
-    machines = m_result.scalars().all()
+    all_machines = m_result.scalars().all()
 
-    # Helper to calculate wait for a specific type
-    def calculate_wait_times(machine_type):
-        type_machines = [m for m in machines if m.type == machine_type]
-        # Sort by end time: null (free) first, then by time
-        # Free machines have wait_time = 0
-        occupied = sorted([m for m in type_machines if m.status != "free" and m.current_cycle_end], key=lambda m: m.current_cycle_end)
-        free_count = len([m for m in type_machines if m.status == "free"])
+    # 3. Separate in_progress from waiting
+    in_progress = [t for t in all_turns if t.status == "in_progress"]
+    waiting_washers = [t for t in all_turns if t.status == "waiting" and t.type == "washer"]
+    waiting_dryers = [t for t in all_turns if t.status == "waiting" and t.type == "dryer"]
 
-        return occupied, free_count
+    # 4. Helper for wait calculation
+    def calculate_wait(waiting_list, machine_type):
+        type_machines = [m for m in all_machines if m.type == machine_type]
+        # Skip machines in maintenance
+        available_machines = [m for m in type_machines if m.status != "maintenance"]
 
-    washers_occupied_initial, washers_free_initial = calculate_wait_times("washer")
-    dryers_occupied_initial, dryers_free_initial = calculate_wait_times("dryer")
+        free_count = len([m for m in available_machines if m.status == "free"])
 
+        occupied = []
+        for m in available_machines:
+            if m.status == "occupied" and m.current_cycle_end:
+                # Force UTC awareness if naive
+                end = m.current_cycle_end
+                if end.tzinfo is None:
+                    end = end.replace(tzinfo=timezone.utc)
+                occupied.append(SimMachine(end, m.default_cycle_time))
+
+        occupied.sort(key=lambda m: m.current_cycle_end)
+
+        results = []
+        now = datetime.now(timezone.utc)
+
+        # Simulated occupied list for future users
+        sim_occupied = list(occupied)
+        current_free = free_count
+
+        for t in waiting_list:
+            if current_free > 0:
+                wait_min = 0
+                current_free -= 1
+                sim_end = now + timedelta(minutes=45)
+                sim_occupied.append(SimMachine(sim_end, 45))
+                sim_occupied.sort(key=lambda m: m.current_cycle_end)
+            else:
+                if sim_occupied:
+                    m = sim_occupied.pop(0)
+                    wait_sec = (m.current_cycle_end - now).total_seconds()
+                    wait_min = int(max(0, wait_sec / 60))
+
+                    cycle_dur = getattr(m, 'default_cycle_time', 45)
+                    start = max(now, m.current_cycle_end)
+                    new_end = start + timedelta(minutes=cycle_dur)
+
+                    sim_occupied.append(SimMachine(new_end, cycle_dur))
+                    sim_occupied.sort(key=lambda m: m.current_cycle_end)
+                else:
+                    wait_min = 30 # Fallback
+
+            results.append({
+                "id": t.id,
+                "customer_name": t.customer_name,
+                "status": t.status,
+                "type": t.type,
+                "estimated_wait": wait_min
+            })
+        return results
+
+    # 5. Build final response
     response = []
 
-    # Simulated queues for calculation
-    # Calculate estimated wait
-    washers_occupied = list(washers_occupied_initial) # Create a mutable copy
-    dryers_occupied = list(dryers_occupied_initial) # Create a mutable copy
-
-    washers_free = washers_free_initial
-    dryers_free = dryers_free_initial
-
-    now = datetime.now(timezone.utc)
-
-    # Populate initial occupied list
-    # Simple heuristic: assume they want a washer if not specified (or we could add type to Turn)
-    # For MVP, let's assume all waiting turns are for *any* machine, but predominantly washers first?
-    # Actually, let's just show wait time for "next available washer" for now as a generic proxy
-    # Or better: The turn itself doesn't specify type in MVP model yet.
-    # Let's assume they are waiting for a WASHER for the calculation unless we add 'type' to Turn.
-    # IMPROVEMENT: Add 'machine_type' to Turn model later. For now, assume Washer.
-
-    for t in turns:
-        # Simple heuristic: assume they want a washer if not specified (or we could add type to Turn)
-        # For MVP, let's assume all waiting turns are for *any* machine, but predominantly washers first?
-        # Actually, let's just show wait time for "next available washer" for now as a generic proxy
-        # Or better: The turn itself doesn't specify type in MVP model yet.
-        # Let's assume they are waiting for a WASHER for the calculation unless we add 'type' to Turn.
-        # IMPROVEMENT: Add 'machine_type' to Turn model later. For now, assume Washer.
-
-        estimated_wait_minutes = 0
-
-        # Algorithm:
-        # If free > 0: wait is 0, decrement free
-        # Else: take earliest finish time, add that to queue
-        # For MVP simplification: We will just return the list of people.
-        # The prompt asked for "Wait time calculation".
-
-        # Let's do a robust calculation assuming Washer for everyone for now (80% case)
-        if washers_free > 0:
-            estimated_wait_minutes = 0
-            washers_free -= 1
-            # We assume one washer becomes occupied starting NOW until NOW + default_cycle
-            # Add a simulated occupied machine to the list for future people in line
-            # We don't have a specific machine object, so we simulate a finish time.
-            simulated_end_time = now + timedelta(minutes=45) # Average cycle if unknown
-            # Insert into sorted list
-            washers_occupied.append(type('obj', (object,), {'current_cycle_end': simulated_end_time, 'default_cycle_time': 45})())
-            washers_occupied.sort(key=lambda m: m.current_cycle_end)
-        else:
-            if washers_occupied:
-                # User takes the slot of the first machine to become free
-                next_machine = washers_occupied.pop(0)
-
-                # Wait time is diff between machine end and now
-                wait_seconds = (next_machine.current_cycle_end - now).total_seconds()
-                estimated_wait_minutes = int(max(0, wait_seconds / 60))
-
-                # Now this machine is occupied by THIS user until (End Time + Cycle Time)
-                # We use the machine's specific default_cycle_time if available, else 45
-                cycle_duration = getattr(next_machine, 'default_cycle_time', 45)
-
-                # If the machine finished in the past (wait=0), the new cycle starts NOW.
-                # If it finishes in the future, new cycle starts THEN.
-                start_time = max(now, next_machine.current_cycle_end)
-                new_end_time = start_time + timedelta(minutes=cycle_duration)
-
-                # Re-queue this machine with new end time
-                # We create a dummy object or update the existing one if mutable (it's an ORM object, better not mutate in place if it affects DB, but here it's a list from query)
-                # Safest to create a simple object/dict wrapper
-                washers_occupied.append(type('obj', (object,), {'current_cycle_end': new_end_time, 'default_cycle_time': cycle_duration})())
-                washers_occupied.sort(key=lambda m: m.current_cycle_end)
-            else:
-                estimated_wait_minutes = 30 # Should not happen if logic is correct unless 0 machines exist
-
+    # Add in_progress turns
+    for t in in_progress:
         response.append({
             "id": t.id,
             "customer_name": t.customer_name,
             "status": t.status,
             "type": t.type,
-            "estimated_wait": estimated_wait_minutes
+            "estimated_wait": 0
         })
+
+    # Add washer wait times
+    response.extend(calculate_wait(waiting_washers, "washer"))
+
+    # Add dryer wait times
+    response.extend(calculate_wait(waiting_dryers, "dryer"))
 
     return response
 
