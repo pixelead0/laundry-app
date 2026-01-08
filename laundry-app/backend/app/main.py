@@ -21,6 +21,15 @@ app.add_middleware(
 # Routes
 app.include_router(api_router) # Top level or prefixed
 
+# Health check endpoint for production monitoring
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "version": "1.7.0",
+        "service": "laundry-backend"
+    }
+
 # Startup
 async def seed_db(db):
     result = await db.execute(select(Machine))
