@@ -20,17 +20,21 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-          cache: 'pip'
+
+      - name: Install UV
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - name: Install dependencies
         run: |
           cd laundry-app/backend
-          pip install -r requirements.txt
-          pip install -r requirements-test.txt
+          ~/.local/bin/uv venv
+          ~/.local/bin/uv pip install fastapi uvicorn "sqlalchemy[asyncio]" aiosqlite pydantic-settings websockets python-multipart
+          ~/.local/bin/uv pip install pytest pytest-asyncio pytest-cov httpx
 
       - name: Run tests with coverage
         run: |
           cd laundry-app/backend
+          source .venv/bin/activate
           PYTHONPATH=$PWD pytest tests/ --cov=app --cov-report=xml --cov-fail-under=90
 
       - name: Upload coverage to Codecov
