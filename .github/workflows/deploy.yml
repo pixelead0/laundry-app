@@ -26,6 +26,7 @@ jobs:
         run: |
           cd laundry-app/backend
           pip install -r requirements.txt
+          pip install -r requirements-test.txt
 
       - name: Run tests with coverage
         run: |
