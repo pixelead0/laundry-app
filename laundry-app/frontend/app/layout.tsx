@@ -17,6 +17,8 @@ export const metadata: Metadata = {
     description: "Manage your machines and queue efficiently.",
 };
 
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+
 export default function RootLayout({
     children,
 }: Readonly<{
@@ -27,7 +29,9 @@ export default function RootLayout({
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
-                {children}
+                <ErrorBoundary>
+                    {children}
+                </ErrorBoundary>
             </body>
         </html>
     );
