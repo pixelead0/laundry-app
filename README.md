@@ -37,6 +37,14 @@ Ensure you have Node.js 20+ and Python 3.11+ installed.
 
 - [**Frontend README**](laundry-app/frontend/README.md): Detailed frontend setup, architecture, and technology stack.
 
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) for details on our code of conduct, and the process for submitting pull requests to us.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## 📜 Version History
 
 See [CHANGELOG.md](CHANGELOG.md) for the full release history from MVP to v1.6.0.
