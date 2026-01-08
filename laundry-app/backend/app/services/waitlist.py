@@ -57,6 +57,7 @@ class WaitlistService:
             results.append({
                 "id": t.id,
                 "customer_name": t.customer_name,
+                "customer_phone": t.customer_phone,
                 "status": t.status,
                 "type": t.type,
                 "estimated_wait": wait_min,
