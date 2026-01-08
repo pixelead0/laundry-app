@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import { useMachineActions } from "@/hooks/useMachineActions"
 import { useMachineStore } from "@/stores/useMachineStore"
 import { MachineType, Turn } from "@/types"
+import { motion } from "framer-motion"
 import { Clock, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -57,18 +58,23 @@ export function Waitlist({ readOnly = false }: { readOnly?: boolean }) {
             ) : (
                 <div className="space-y-3">
                     {list.map((turn, i) => (
-                        <div key={turn.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800">
+                        <motion.div
+                            key={turn.id}
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-900/40 rounded-2xl border border-white/10 dark:border-slate-800/50 hover:border-slate-300 dark:hover:border-slate-600 transition-all group"
+                        >
                             <div className="flex flex-col">
-                                <span className="font-medium text-sm flex items-center gap-2">
-                                    <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px]">{i + 1}</span>
+                                <span className="font-black text-sm uppercase italic tracking-tighter flex items-center gap-2 text-slate-700 dark:text-slate-200">
+                                    <span className="w-6 h-6 rounded-lg bg-slate-900 text-white flex items-center justify-center text-[10px] italic shadow-lg">{i + 1}</span>
                                     {turn.customer_name}
                                 </span>
                             </div>
-                            <div className="flex items-center text-xs text-slate-500 gap-1">
-                                <Clock className="w-3 h-3" />
+                            <div className="flex items-center text-[10px] font-black uppercase italic tracking-widest text-slate-400 gap-1.5 bg-slate-100/50 dark:bg-black/20 px-2 py-1 rounded-lg">
+                                <Clock className="w-3 h-3 text-indigo-500" />
                                 {turn.estimated_wait > 0 ? `~${turn.estimated_wait}m` : 'Listo'}
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             )}
@@ -77,106 +83,114 @@ export function Waitlist({ readOnly = false }: { readOnly?: boolean }) {
 
     return (
         <div className="w-full lg:w-80 h-fit space-y-6">
-            <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
-                <CardHeader className="pb-3">
-                    <CardTitle className="text-lg font-bold">Lista de Espera</CardTitle>
+            <Card className="border-none glass premium-shadow rounded-3xl overflow-hidden">
+                <CardHeader className="pb-3 bg-white/5 dark:bg-black/5">
+                    <CardTitle className="text-xl font-black tracking-tighter uppercase italic text-slate-900 dark:text-white">
+                        Lista de Espera
+                    </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                     {!readOnly && (
                         <>
-                            <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+                            <form onSubmit={handleSubmit} className="space-y-4 mb-8">
                                 <div className="space-y-2">
-                                    <Label htmlFor="name" className="text-xs font-semibold uppercase text-slate-500">Nombre del Cliente</Label>
+                                    <Label htmlFor="name" className="text-xs font-black uppercase tracking-widest text-slate-400">Cliente</Label>
                                     <Input
                                         id="name"
                                         placeholder="Ej. Juan Pérez"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="bg-slate-50 dark:bg-slate-900 border-slate-200"
+                                        className="bg-white/50 dark:bg-slate-950/50 border-white/20 h-11 rounded-xl"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-semibold uppercase text-slate-500">Tipo de Servicio</Label>
+                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Servicio</Label>
                                     <Select value={type} onValueChange={(v: any) => setType(v)}>
-                                        <SelectTrigger className="bg-slate-50 dark:bg-slate-900 border-slate-200">
+                                        <SelectTrigger className="bg-white/50 dark:bg-slate-950/50 border-white/20 h-11 rounded-xl">
                                             <SelectValue />
                                         </SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent className="glass">
                                             <SelectItem value="washer">Lavadora</SelectItem>
                                             <SelectItem value="dryer">Secadora</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="phone" className="text-xs font-semibold uppercase text-slate-500">Teléfono (Opcional)</Label>
-                                    <Input
-                                        id="phone"
-                                        placeholder="555-0123"
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        className="bg-slate-50 dark:bg-slate-900 border-slate-200"
-                                    />
-                                </div>
-                                <Button type="submit" className="w-full bg-slate-900 hover:bg-slate-800 text-white" disabled={loading}>
+                                <Button type="submit" className="w-full bg-slate-900 hover:bg-slate-800 text-white font-black uppercase italic tracking-widest h-11 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={loading}>
                                     {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                                     Unirse a la Lista
                                 </Button>
                             </form>
-                            <Separator className="my-6" />
+                            <Separator className="my-8 opacity-20" />
                         </>
                     )}
 
                     {readOnly ? (
-                        <div className="space-y-6">
+                        <div className="space-y-8">
                             <div>
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Lavadoras ({waitingListWasher.length})</h3>
+                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                    Lavadoras ({waitingListWasher.length})
+                                </h3>
                                 {renderList(waitingListWasher, "Nadie esperando lavadora")}
                             </div>
-                            <Separator className="opacity-50" />
+                            <Separator className="opacity-10" />
                             <div>
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Secadoras ({waitingListDryer.length})</h3>
+                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                                    Secadoras ({waitingListDryer.length})
+                                </h3>
                                 {renderList(waitingListDryer, "Nadie esperando secadora")}
                             </div>
                         </div>
                     ) : (
                         <Tabs defaultValue="washer" className="w-full">
-                            <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-900">
-                                <TabsTrigger value="washer">Lavadoras ({waitingListWasher.length})</TabsTrigger>
-                                <TabsTrigger value="dryer">Secadoras ({waitingListDryer.length})</TabsTrigger>
+                            <TabsList className="grid w-full grid-cols-2 bg-slate-100/50 dark:bg-slate-900/50 rounded-xl p-1 mb-6">
+                                <TabsTrigger value="washer" className="rounded-lg font-black text-[10px] uppercase tracking-widest">Lavadoras</TabsTrigger>
+                                <TabsTrigger value="dryer" className="rounded-lg font-black text-[10px] uppercase tracking-widest">Secadoras</TabsTrigger>
                             </TabsList>
-                            <TabsContent value="washer" className="mt-4 pt-2">
-                                {renderList(waitingListWasher, "Nadie esperando lavadora")}
+                            <TabsContent value="washer" className="mt-0">
+                                {renderList(waitingListWasher, "No hay espera")}
                             </TabsContent>
-                            <TabsContent value="dryer" className="mt-4 pt-2">
-                                {renderList(waitingListDryer, "Nadie esperando secadora")}
+                            <TabsContent value="dryer" className="mt-0">
+                                {renderList(waitingListDryer, "No hay espera")}
                             </TabsContent>
                         </Tabs>
                     )}
                 </CardContent>
             </Card>
 
-            <Card className="border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-3">
-                    <CardTitle className="text-lg font-bold">Turnos Activos</CardTitle>
+            <Card className="border-none glass premium-shadow rounded-3xl overflow-hidden">
+                <CardHeader className="bg-blue-500/5 dark:bg-blue-500/10 border-b border-white/10 pb-3">
+                    <CardTitle className="text-xl font-black tracking-tighter uppercase italic text-slate-900 dark:text-white">
+                        Turnos Activos
+                    </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4">
+                <CardContent className="pt-6">
                     <ScrollArea className="h-[250px]">
                         {activeList.length === 0 ? (
-                            <p className="text-sm text-slate-400 text-center py-8 italic">Sin turnos activos en este momento</p>
+                            <div className="flex flex-col items-center justify-center py-10 text-slate-400 space-y-2">
+                                <Clock className="w-8 h-8 opacity-20" />
+                                <p className="text-sm italic">Sin turnos activos</p>
+                            </div>
                         ) : (
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 {activeList.map((turn) => (
-                                    <div key={turn.id} className="flex items-center justify-between p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/20 group hover:border-blue-300 transition-colors">
+                                    <motion.div
+                                        key={turn.id}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        className="flex items-center justify-between p-4 bg-blue-500/5 dark:bg-blue-400/10 rounded-2xl border border-blue-500/10 hover:border-blue-400 transition-colors group"
+                                    >
                                         <div className="flex flex-col">
-                                            <span className="font-bold text-sm text-slate-900 dark:text-slate-100">{turn.customer_name}</span>
-                                            <span className="text-[10px] uppercase font-bold text-slate-400 mt-1">
+                                            <span className="font-black text-sm text-slate-900 dark:text-white uppercase tracking-tight">{turn.customer_name}</span>
+                                            <span className="text-[10px] uppercase font-black text-blue-500/70 mt-1 tracking-tighter">
                                                 En: {getMachineName(turn.id)}
                                             </span>
                                         </div>
-                                        <div className="px-3 py-1 bg-blue-600 text-white rounded-full text-[10px] font-black tracking-tighter">
+                                        <div className="px-3 py-1 bg-blue-600 text-white rounded-full text-[10px] font-black tracking-tighter shadow-lg shadow-blue-500/30">
                                             #{turn.id}
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </div>
                         )}

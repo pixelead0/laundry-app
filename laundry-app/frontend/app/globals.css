@@ -123,3 +123,29 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-white/10;
+  }
+
+  .glass-darker {
+    @apply bg-slate-950/40 backdrop-blur-2xl border border-white/5;
+  }
+
+  .premium-gradient {
+    @apply bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500;
+  }
+
+  .premium-shadow {
+    box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.1);
+  }
+
+  .premium-shadow-hover {
+    box-shadow: 0 30px 60px -12px rgba(99, 102, 241, 0.2);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+  }
+}

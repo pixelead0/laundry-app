@@ -40,33 +40,50 @@ export function MachineCard({
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
             className="h-full"
         >
             <Card className={cn(
-                "h-full border shadow-sm hover:shadow-md transition-all",
-                isOverdue ? "border-red-500/50 shadow-red-500/20 dark:shadow-red-900/20 animate-pulse" : "border-slate-200 dark:border-slate-800"
+                "h-full relative overflow-hidden glass transition-all duration-300",
+                isOverdue
+                    ? "ring-2 ring-red-500 shadow-[0_0_30px_rgba(239,68,68,0.2)] animate-pulse"
+                    : "premium-shadow hover:premium-shadow-hover"
             )}>
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                    <CardTitle className="text-sm font-medium flex items-center gap-2">
-                        <WashingMachine className="w-4 h-4 text-slate-500" />
+                {/* Visual Accent */}
+                <div className={cn(
+                    "absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 opacity-10 rounded-full blur-3xl",
+                    machine.status === 'free' ? 'bg-emerald-500' :
+                        machine.status === 'occupied' ? 'bg-blue-500' :
+                            machine.status === 'maintenance' ? 'bg-red-500' : 'bg-amber-500'
+                )} />
+
+                <CardHeader className="flex flex-row items-center justify-between pb-3 space-y-0 relative z-10">
+                    <CardTitle className="text-sm font-black tracking-tighter uppercase italic flex items-center gap-2 text-slate-400">
+                        <WashingMachine className={cn("w-4 h-4", isOverdue ? "text-red-500" : "text-slate-500")} />
                         {machine.name}
                     </CardTitle>
-                    <Badge variant="outline" className={cn("capitalize", statusColor)}>
+                    <Badge className={cn(
+                        "border-none px-3 py-1 font-black uppercase text-[10px] tracking-widest",
+                        machine.status === 'free' ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" :
+                            machine.status === 'occupied' ? "bg-blue-500/10 text-blue-600 dark:text-blue-400" :
+                                machine.status === 'maintenance' ? "bg-red-500/10 text-red-600 dark:text-red-400" :
+                                    "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    )}>
                         {machine.status === 'free' ? 'Disponible' :
                             machine.status === 'occupied' ? 'En Uso' :
                                 machine.status === 'maintenance' ? 'Mantenimiento' : machine.status}
                     </Badge>
                 </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">
+                <CardContent className="relative z-10">
+                    <div className="text-3xl font-black tracking-tighter uppercase italic">
                         {machine.status === "free" ? (
-                            <span className="text-slate-900 dark:text-white font-semibold">Disponible</span>
+                            <span className="text-slate-900 dark:text-white">Disponible</span>
                         ) : (
                             <span className={cn(
-                                "tabular-nums font-mono font-bold",
-                                isOverdue ? "text-red-600 dark:text-red-400" : "text-slate-900 dark:text-white"
+                                "tabular-nums font-mono drop-shadow-sm",
+                                isOverdue ? "text-red-600 dark:text-red-400 animate-pulse" : "text-slate-900 dark:text-white text-glow"
                             )}>
                                 {formattedTime}
                             </span>
