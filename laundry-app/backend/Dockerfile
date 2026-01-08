@@ -1,16 +1,22 @@
-# Multi-stage build for smaller image size
+# Multi-stage build for smaller image size with UV
 FROM python:3.11-slim as builder
 
 WORKDIR /app
+
+# Install UV - the fast Python package installer
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
   gcc \
   && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Copy dependency files
+COPY pyproject.toml .
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Python dependencies using UV (much faster than pip)
+RUN uv pip install --system --no-cache -r requirements.txt
 
 # Production stage
 FROM python:3.11-slim
