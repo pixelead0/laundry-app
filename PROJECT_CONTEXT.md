@@ -3,11 +3,11 @@
 This document serves as the master context for the Laundry Management Application. It outlines the architecture, tech stack, codebase structure, and operational instructions.
 
 ## 1. Project Overview
-**Goal**: A "super aesthetic" web application to manage laundry machines (washers/dryers), eliminating manual tracking.
-**Status**: v1.4.1 (Stabilization, Split Waitlists, negative timers).
+**Goal**: A "super aesthetic" premium web application to manage laundry machines (washers/dryers) with real-time status and advanced waitlist management.
+**Status**: v1.6.0 (Premium UI/UX, Feature-Based Architecture, Error Handling).
 **Target Users**:
-- **Public**: View-only dashboard showing machine status, stacked waitlists (Washer/Dryer), and overdue alerts.
-- **Admin**: Staff dashboard with separate queue tabs, machine configuration, and failure reporting.
+- **Public**: View-only dashboard featuring a glassmorphism UI, real-time machine statuses, and categorized waitlists.
+- **Admin**: Comprehensive staff dashboard with machine CRUD, failure reporting, and interactive waitlist management.
 - **UI Language**: Spanish (Español).
 
 ## 2. Technology Stack
@@ -21,12 +21,14 @@ This document serves as the master context for the Laundry Management Applicatio
 - **Server**: Uvicorn.
 
 ### Frontend
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: custom "shadcn/ui" implementations.
-- **Data Fetching**: Dynamic host detection (supports network access).
-- **State Management**: Zustand (`useMachineStore`).
+- **Framework**: Next.js 15 (App Router / Turbopack)
+- **Language**: TypeScript (Strict)
+- **Styling**: Tailwind CSS 4 + ShadcnUI
+- **Design System**: Glassmorphism (Backdrop-blur, Vibrant Gradients, Premium Shadows)
+- **Animations**: Framer Motion (Micro-interactions, Page transitions)
+- **State Management**: Zustand (Optimized with Selectors)
+- **Error Handling**: Global React Error Boundary
+- **Networking**: Environment-based configuration (`.env.local`)
 
 ## 3. Architecture
 
@@ -49,21 +51,21 @@ This document serves as the master context for the Laundry Management Applicatio
 
 ```text
 laundry-app/
-├── start.sh              # Startup script (Backend + Frontend)
+├── start.sh              # Unified Startup script (Backend + Frontend)
 ├── backend/
-│   ├── main.py           # Entry point, API, WebSocket
-│   ├── models.py         # SQLAlchemy models
-│   └── database.py       # Async engine setup
+│   ├── main.py           # FastAPI entry point & WebSockets
+│   ├── models.py         # SQLAlchemy Pydantic models
+│   └── database.py       # Async SQLite configuration
 └── frontend/
-    ├── app/
-    │   ├── page.tsx      # Public Dashboard
-    │   └── admin/
-    │       └── page.tsx  # Admin Dashboard
+    ├── app/              # Next.js App Router (Layout, Page, Admin)
     ├── components/
-    │   ├── Waitlist.tsx  # Queue & Active Turns list
-    │   └── ...
-    └── stores/
-        └── useMachineStore.ts # State definitions
+    │   ├── features/     # Domain-specific components (Machines, Waitlist)
+    │   ├── layout/       # Shared UI Shell & navigation
+    │   └── ui/           # Primitive shadcn-based components
+    ├── services/         # Centralized API service (api.ts)
+    ├── hooks/            # Shared logic (useTimer, useWebSocket, useMachineActions)
+    ├── stores/           # Global Zustand store
+    └── README.md         # Dedicated frontend documentation
 ```
 
 ## 5. Setup & Running
@@ -93,9 +95,10 @@ npm run dev
 ```
 
 ## 6. Key Implementation Details
-- **Network Access**: Frontend uses `window.location.hostname` for dynamic host detection.
-- **Split Waitlists**: Customers join specific Washer or Dryer queues. Public view displays them stacked; Admin uses tabs.
-- **Resilience**: Assignment can be cancelled or reported as failure, returning the customer to the waitlist automatically.
+- **Premium UI**: Uses custom Tailwind utilities for glassmorphism and `framer-motion` for high-end micro-interactions.
+- **Error Boundaries**: A global `ErrorBoundary` wraps the application to prevent white-screen crashes, providing a graceful recovery UI.
+- **Custom Hooks**: Business logic is separated from UI components, improving testability and code reuse.
+- **Environment Config**: Base URLs for API and WebSockets are controlled via `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_WS_URL`.
 - **Negative Timers**: Overdue machines pulse red and show negative time (e.g., `-2m 15s`) to alert staff.
 - **Log Management**: `start.sh` redirects logs to `backend.log` and `frontend.log` with terminal prefixing.
 

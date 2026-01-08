@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Laundry App Frontend
 
-## Getting Started
+A modern, responsive dashboard built with **Next.js 15**, **TypeScript**, and **Tailwind CSS**.
 
-First, run the development server:
+## 🏗️ Architecture
 
+This project follows a **Feature-Based Architecture**, ensuring high modularity and clear separation of concerns:
+
+- **`components/features/`**: Domain-driven components (Machines, Waitlist).
+- **`components/layout/`**: Shared UI Shell and layouts.
+- **`hooks/`**: Custom hooks for business logic decoupling (`useTimer`, `useWebSocket`).
+- **`services/`**: Centralized API client (`api.ts`).
+- **`stores/`**: Global state management using **Zustand**.
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 20+
+- NPM / Yarn / PNPM
+
+### Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone the repository
+git clone <repo-url>
+cd laundry-app/frontend
+
+# Install dependencies
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Configuration
+Create a `.env.local` file in the root of the frontend folder:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Development
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Tech Stack
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS 4 + ShadcnUI
+- **State**: Zustand
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Notifications**: Sonner
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ✅ Best Practices Implemented
+- **Type Safety**: 100% TypeScript coverage.
+- **Performance**: Optimized state selectors to minimize re-renders.
+- **Real-time**: WebSocket integration for live updates.
+- **Responsive**: Fully optimized for mobile, tablet, and desktop views.

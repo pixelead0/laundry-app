@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.6.0] - Premium UI/UX Polish
+### Added
+- **Glassmorphism Design**: Implemented a modern design system with backdrop-blur, subtle borders, and premium shadows.
+- **Premium Aesthetics**: Added text-glow effects, vibrant status gradients, and immersive background decorations.
+- **Micro-interactions**: Enhanced usage of `framer-motion` for smoother transitions and interactive feedback on MachineCards and Waitlist.
+- **Global Error Boundary**: Added a global React Error Boundary to capture and display errors gracefully with a recovery UI.
+
+## [v1.5.0] - Professional Restructuring
+### Added
+- **Feature-Based Architecture**: Reorganized frontend components into domain-driven folders (`features/machines`, `features/waitlist`).
+- **Decoupled Business Logic**: Extracted API calls to `services/api.ts` and complex logic to custom hooks (`useTimer`, `useWebSocket`, `useMachineActions`).
+- **Configurable Environments**: Introduced `.env` support for `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_WS_URL`.
+- **Improved DX**: Added a dedicated `README.md` for the frontend and standardized TypeScript types.
+
+
 ## [v1.4.1] - Stabilization & Sync Fixes
 ### Fixed
 - **Backend Stability**: Resolved a `TypeError` in the `get_turns` endpoint caused by mixed naive/aware datetime comparisons.
