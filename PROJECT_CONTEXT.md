@@ -4,10 +4,10 @@ This document serves as the master context for the Laundry Management Applicatio
 
 ## 1. Project Overview
 **Goal**: A "super aesthetic" web application to manage laundry machines (washers/dryers), eliminating manual tracking.
-**Status**: MVP Complete (backend + frontend core + waitlist support).
+**Status**: v1.4.0 (Split Waitlists, Maintenance Handling, negative timers).
 **Target Users**:
-- **Public**: View-only dashboard for checking availability and waitlist status.
-- **Admin**: Staff dashboard for assigning machines and managing the queue.
+- **Public**: View-only dashboard showing machine status, stacked waitlists (Washer/Dryer), and overdue alerts.
+- **Admin**: Staff dashboard with separate queue tabs, machine configuration, and failure reporting.
 - **UI Language**: Spanish (Español).
 
 ## 2. Technology Stack
@@ -42,8 +42,8 @@ This document serves as the master context for the Laundry Management Applicatio
 5.  **Frontend** updates UI in real-time.
 
 ### Database Models (`backend/models.py`)
-- **Machine**: `id`, `name`, `type` (washer/dryer), `capacity`, `status`, `current_cycle_end`, `current_turn_id`.
-- **Turn**: `id`, `customer_name`, `customer_phone`, `status` (waiting/in_progress/completed/cancelled), `machine_id`.
+- **Machine**: `id`, `name`, `type` (washer/dryer), `capacity`, `status`, `default_cycle_time`, `machine_order`, `current_cycle_end`, `current_turn_id`.
+- **Turn**: `id`, `customer_name`, `customer_phone`, `status` (waiting/in_progress/completed/cancelled), `type` (washer/dryer), `machine_id`.
 
 ## 4. Project Structure (Key Files)
 
@@ -93,9 +93,11 @@ npm run dev
 ```
 
 ## 6. Key Implementation Details
-- **Network Access**: The frontend dynamically determines the API/WS host using `window.location.hostname`, allowing access from mobile devices on the same network.
-- **Relative Imports**: Backend uses absolute imports (`backend.database`) to support `uvicorn` reload mechanics.
-- **Wait Time Logic**: Estimated wait time is calculated based on the `current_cycle_end` of occupied machines.
+- **Network Access**: Frontend uses `window.location.hostname` for dynamic host detection.
+- **Split Waitlists**: Customers join specific Washer or Dryer queues. Public view displays them stacked; Admin uses tabs.
+- **Resilience**: Assignment can be cancelled or reported as failure, returning the customer to the waitlist automatically.
+- **Negative Timers**: Overdue machines pulse red and show negative time (e.g., `-2m 15s`) to alert staff.
+- **Log Management**: `start.sh` redirects logs to `backend.log` and `frontend.log` with terminal prefixing.
 
 ## 7. Future Roadmap
 - **Authentication**: Secure the `/admin` route.
@@ -106,10 +108,13 @@ npm run dev
 
 ### REST Endpoints
 - `GET /machines`
-- `GET /turns` (Active/Waiting)
-- `POST /turns` (Join Waitlist)
-- `POST /machines/{id}/assign?turn_id={id}`
+- `GET /turns` (Filtered by status and type)
+- `POST /turns` (Join Waitlist with `type`)
+- `POST /machines/{id}/assign?duration_minutes=X&turn_id=Y`
 - `POST /machines/{id}/complete`
+- `POST /machines/{id}/maintenance` (Reports failure)
+- `POST /machines/{id}/recover` (Back from maintenance)
+- `POST /machines/{id}/cancel` (Undo assignment)
 
 ### WebSocket
 - `ws://<host>:8000/ws`

@@ -16,19 +16,24 @@ if [ -d "backend/venv" ]; then
 fi
 
 # Run as module to allow relative imports
-python3 -m uvicorn backend.main:app --port 8000 --reload &
+python3 -m uvicorn backend.main:app --port 8000 --reload > backend.log 2>&1 &
 BACKEND_PID=$!
 
 # Start Frontend
 echo "Starting Frontend on port 3000..."
 cd frontend
-npm run dev &
+npm run dev > ../frontend.log 2>&1 &
 FRONTEND_PID=$!
 
 echo "Services started!"
-echo "Backend: http://localhost:8000"
-echo "Frontend: http://localhost:3000"
-echo "Press Ctrl+C to stop everything."
+echo "Backend: http://localhost:8000 (Logs: backend.log)"
+echo "Frontend: http://localhost:3000 (Logs: frontend.log)"
+echo "--------------------------------------------------"
+echo "Displaying combined logs (Ctrl+C to stop services):"
+
+# Use tail to show both logs with colors/prefixes
+tail -f ../backend.log | sed "s/^/$(printf '\033[34m[BACKEND]\033[0m') /" &
+tail -f ../frontend.log | sed "s/^/$(printf '\033[32m[FRONTEND]\033[0m') /" &
 
 # Wait for both processes
-wait
+wait $BACKEND_PID $FRONTEND_PID
