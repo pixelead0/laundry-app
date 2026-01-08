@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./laundry-app/backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://laundry_user:laundry_pass@db:5432/laundry_db
+      - BACKEND_CORS_ORIGINS=["http://localhost:3000"]
+      - PROJECT_NAME=Laundry Management System
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - laundry-network
+
+  frontend:
+    build:
+      context: ./laundry-app/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - laundry-network
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=laundry_user
+      - POSTGRES_PASSWORD=laundry_pass
+      - POSTGRES_DB=laundry_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U laundry_user -d laundry_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - laundry-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  laundry-network:
+    driver: bridge
