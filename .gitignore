@@ -21,4 +21,4 @@ backend.log
 frontend.log
 *.db
 *.db-journal
-tests/
+

@@ -22,6 +22,16 @@ app.add_middleware(
 app.include_router(api_router) # Top level or prefixed
 
 # Startup
+async def seed_db(db):
+    result = await db.execute(select(Machine))
+    machines = result.scalars().all()
+    if not machines:
+        for i in range(1, 6):
+            db.add(Machine(name=f"W{i}", type="washer", capacity="10kg", status="free"))
+        for i in range(1, 6):
+            db.add(Machine(name=f"D{i}", type="dryer", capacity="15kg", status="free"))
+        await db.commit()
+
 @app.on_event("startup")
 async def startup():
     async with engine.begin() as conn:
@@ -29,11 +39,4 @@ async def startup():
 
     # Seed data
     async with SessionLocal() as session:
-        result = await session.execute(select(Machine))
-        machines = result.scalars().all()
-        if not machines:
-            for i in range(1, 6):
-                session.add(Machine(name=f"W{i}", type="washer", capacity="10kg", status="free"))
-            for i in range(1, 6):
-                session.add(Machine(name=f"D{i}", type="dryer", capacity="15kg", status="free"))
-            await session.commit()
+        await seed_db(session)
