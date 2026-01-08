@@ -39,14 +39,21 @@ docker-compose up --build
      - Root Directory: `/laundry-app/backend`
      - Watch Paths: `/laundry-app/backend/**`
    - **Settings → Deploy**:
-     - Build Command: (empty - uses Dockerfile)
-     - Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 4`
+     - Builder: `DOCKERFILE` (Railway auto-detects)
+     - Dockerfile Path: `laundry-app/backend/Dockerfile`
+     - Start Command: (leave empty - uses `entrypoint.sh` from Dockerfile CMD)
    - **Variables**:
      ```
      DATABASE_URL=${{Postgres.DATABASE_URL}}
      BACKEND_CORS_ORIGINS=["https://your-frontend-url.railway.app"]
      SECRET_KEY=generate-random-32-char-string
      ```
+
+> [!IMPORTANT]
+> The backend uses an `entrypoint.sh` script that automatically handles Railway's dynamic `PORT` variable. Do NOT override the start command in Railway settings unless necessary.
+
+> [!NOTE]
+> The backend requires `asyncpg` for PostgreSQL connections. This is included in `requirements.txt` and installed during the Docker build process.
 
 #### Frontend Service
 
@@ -65,6 +72,12 @@ docker-compose up --build
      ```
 
 6. **Deploy**: Railway auto-deploys on push to `main`
+
+**Configuration Files**:
+- `railway.toml`: Defines Dockerfile path and deployment settings
+- `laundry-app/backend/entrypoint.sh`: Handles dynamic PORT variable
+- `laundry-app/backend/Dockerfile`: Multi-stage build with UV for fast dependency installation
+- `laundry-app/backend/pyproject.toml`: Python project configuration and dependencies
 
 **Note**: Railway detects Dockerfiles automatically. Each service needs its own root directory.
 
@@ -216,6 +229,12 @@ NEXT_PUBLIC_SENTRY_DSN=https://your-sentry-dsn
 - Verify `DATABASE_URL` format: `postgresql+asyncpg://user:pass@host:5432/db`
 - Check database credentials
 - Ensure database accepts connections from your server IP
+- **Important**: Use `asyncpg` driver, not `psycopg2`, for async support
+
+### ModuleNotFoundError: No module named 'asyncpg'
+- Ensure `asyncpg` is in `requirements.txt`
+- Rebuild Docker image: `docker-compose build backend`
+- For Railway: trigger a new deployment to rebuild the image
 
 ## Performance Tuning
 

@@ -4,7 +4,7 @@ This document serves as the master context for the Laundry Management Applicatio
 
 ## 1. Project Overview
 **Goal**: A "super aesthetic" premium web application to manage laundry machines (washers/dryers) with real-time status and advanced waitlist management.
-**Status**: v1.6.0 (Premium UI/UX, Feature-Based Architecture, Modular Backend).
+**Status**: v1.8.0 (Production Deployment Infrastructure, Docker/UV Containerization, PostgreSQL Support).
 **Target Users**:
 - **Public**: View-only dashboard featuring a glassmorphism UI, real-time machine statuses, and categorized waitlists.
 - **Admin**: Comprehensive staff dashboard with machine CRUD, failure reporting, and interactive waitlist management.
@@ -14,9 +14,10 @@ This document serves as the master context for the Laundry Management Applicatio
 
 ### Backend
 - **Language**: Python 3.11+
+- **Manager**: UV (Fast package installer & resolver)
 - **Framework**: FastAPI (Modular Structure)
 - **Database Logic**: SQLAlchemy (Async)
-- **Database Driver**: `aiosqlite` (SQLite) for MVP.
+- **Database Driver**: `asyncpg` (PostgreSQL) for production, `aiosqlite` (SQLite) for development.
 - **Config**: `pydantic-settings` (Environment variables).
 - **Real-time**: WebSockets (native FastAPI).
 - **Server**: Uvicorn.
@@ -60,10 +61,11 @@ laundry-app/
 │   │   ├── db/           # Env-based DB session
 │   │   ├── models/       # SQLAlchemy ORM models (Machine, Turn)
 │   │   ├── schemas/      # Pydantic DTOs
-│   │   ├── services/     # Business Logic (WaitlistService)
+│   │   ├── services/     # Business Logic (MachineService, TurnService, WaitlistService)
 │   │   └── main.py       # App entry point
 │   ├── README.md         # Backend documentation
-│   └── requirements.txt  # Python dependencies
+│   ├── pyproject.toml    # UV-based project configuration
+│   └── requirements.txt  # Python dependencies (managed by UV in Docker)
 └── frontend/
     ├── app/              # Next.js App Router (Layout, Page, Admin)
     ├── components/
@@ -129,7 +131,7 @@ npm run dev
 
 ### WebSocket
 - `ws://<host>:8000/ws`
-    - Emits: `machine_update` events with `turn_id`.
+- Emits: `machine_update` events with `turn_id`.
 
 ## 9. Configuration
 - **Database**: `sqlite+aiosqlite:///./laundry.db` inside `backend/`.
@@ -140,12 +142,17 @@ npm run dev
 > **CRITICAL**: All documentation files (`PROJECT_CONTEXT.md`, `walkthrough.md`, `implementation_plan.md`) MUST be updated immediately after any code change. This ensures the documentation never drifts from the codebase.
 
 ## 11. Changelog
-See [CHANGELOG.md](CHANGELOG.md) for version history.
+See [CHANGELOG.md](CHANGELOG.md) for version history, including the recent v1.8.0 infrastructure overhaul.
 
-## 12. Versioning & Branching Policy
+## 12. Deployment Infrastructure
+- **Railway**: Configured with `railway.toml` and `entrypoint.sh`.
+- **Docker**: Multi-stage builds (UV for backend, Node for frontend).
+- **CI/CD**: GitHub Actions for automated testing and container deployment.
+
+## 13. Versioning & Branching Policy
 > [!IMPORTANT]
 > **CRITICAL REQUISITES**:
 > 1. **History Integrity**: Always maintain a clean and descriptive commit history follow standard conventional commits.
 > 2. **Branching Strategy**: Create dedicated `release/vX.X.X` branches for every major/minor version release to preserve code state.
-> 3. **Release Tags**: Every version documented in `CHANGELOG.md` MUST have a corresponding Git tag (e.g., `v1.6.0`).
+> 3. **Release Tags**: Every version documented in `CHANGELOG.md` MUST have a corresponding Git tag (e.g., `v1.8.0`).
 > 4. **On-Demand Releases**: Branches and releases must be created immediately upon request or when a significant hito is reached.

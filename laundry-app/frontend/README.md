@@ -1,6 +1,6 @@
 # Laundry App Frontend
 
-A modern, responsive dashboard built with **Next.js 15**, **TypeScript**, and **Tailwind CSS**.
+A modern, responsive dashboard built with **Next.js 15**, **TypeScript**, and **Tailwind CSS** with production-ready deployment infrastructure.
 
 ## 🏗️ Architecture
 
@@ -38,6 +38,76 @@ NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
 ### Development
 ```bash
 npm run dev
+```
+
+## 🐳 Docker Deployment
+
+### Local Docker Build
+
+```bash
+cd laundry-app/frontend
+docker build -t laundry-frontend .
+docker run -p 3000:3000 \
+  -e NEXT_PUBLIC_API_URL="http://localhost:8000" \
+  -e NEXT_PUBLIC_WS_URL="ws://localhost:8000/ws" \
+  laundry-frontend
+```
+
+### Docker Compose (Recommended)
+
+From the project root:
+
+```bash
+docker-compose up frontend
+```
+
+### Multi-Stage Build
+
+The Dockerfile uses a multi-stage build for optimized production images:
+
+1. **Builder Stage**: Installs dependencies and builds Next.js
+2. **Production Stage**: Copies only production files and node_modules
+3. **Result**: Smaller image size and faster deployments
+
+## 🌐 Environment Variables
+
+### Development (`.env.local`)
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
+```
+
+### Production (`.env.production`)
+
+```env
+NEXT_PUBLIC_API_URL=https://your-backend-url.railway.app
+NEXT_PUBLIC_WS_URL=wss://your-backend-url.railway.app/ws
+```
+
+**Important**: Use `wss://` (not `ws://`) for WebSocket connections in production.
+
+## 📦 Production Build
+
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+## 🧪 Testing
+
+```bash
+# Unit tests (Vitest)
+npm run test
+
+# Coverage report
+npm run test:coverage
+
+# E2E tests (Playwright)
+npx playwright test
 ```
 
 ## 🛠️ Tech Stack

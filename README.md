@@ -16,11 +16,13 @@ A premium, "super-aesthetic" laundry management system designed for ease of use 
 The project is split into two main components:
 
 - **Frontend**: Next.js 15, TypeScript, Tailwind CSS 4, Framer Motion, Zustand.
-- **Backend**: FastAPI, SQLAlchemy, SQLite (Async), WebSockets.
+- **Backend**: FastAPI, SQLAlchemy, PostgreSQL/SQLite (Async), WebSockets.
 
-For detailed technical specs, see [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md).
+For detailed technical specs, see [PROJECT_CONTEXT.md](.agent/rules/PROJECT_CONTEXT.md).
 
 ## 🛠️ Quick Start
+
+### Option 1: Local Development (Recommended for Development)
 
 Ensure you have Node.js 20+ and Python 3.11+ installed.
 
@@ -32,6 +34,20 @@ Ensure you have Node.js 20+ and Python 3.11+ installed.
 - **Dashboard (Public)**: [http://localhost:3000](http://localhost:3000)
 - **Admin Panel**: [http://localhost:3000/admin](http://localhost:3000/admin)
 - **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+### Option 2: Docker (Production-like Environment)
+
+Ensure you have Docker and Docker Compose installed.
+
+```bash
+# Build and run all services (Backend, Frontend, PostgreSQL)
+docker-compose up --build
+
+# Run in detached mode
+docker-compose up -d
+```
+
+For comprehensive deployment instructions (Railway, VPS, CI/CD), see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## 🧪 Testing
 
@@ -84,4 +100,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📜 Version History
 
-See [CHANGELOG.md](CHANGELOG.md) for the full release history from MVP to v1.6.0.
+See [CHANGELOG.md](CHANGELOG.md) for the full release history from MVP to v1.8.0.

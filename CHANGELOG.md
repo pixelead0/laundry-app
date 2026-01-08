@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.8.0] - Production Deployment Infrastructure
+### Added
+- **Railway Deployment Configuration**: Complete Railway.app deployment setup
+  - `railway.toml`: Dockerfile-based deployment configuration
+  - `entrypoint.sh`: Dynamic PORT handling for Railway environment
+  - Health check endpoint configuration
+  - Automatic restart policies
+- **Docker Containerization**: Multi-stage Docker builds for production
+  - Backend Dockerfile with optimized Python 3.11 slim image
+  - Frontend Dockerfile with Next.js production build
+  - `docker-compose.yml`: Complete local development stack with PostgreSQL
+  - Non-root user security in containers
+- **PostgreSQL Support**: Production-ready database infrastructure
+  - Migration from SQLite to PostgreSQL with `asyncpg` driver
+  - Database connection pooling and async support
+  - Docker Compose PostgreSQL service with health checks
+- **CI/CD Pipeline**: GitHub Actions workflow for automated deployment
+  - Automated testing on push to `main` and `dev` branches
+  - Docker image building and publishing on version tags
+  - Integration with Railway deployment webhooks
+- **Production Environment Configuration**:
+  - `.env.production.example` files for both backend and frontend
+  - Environment-based configuration for DATABASE_URL, CORS, and secrets
+
+### Changed
+- **Database Driver**: Migrated from `psycopg2` to `asyncpg` for better async performance
+- **Deployment Strategy**: Moved from manual deployment to automated CI/CD
+- **Container Architecture**: Implemented multi-stage builds for smaller image sizes
+- **Package Manager**: Migrated to UV for significantly faster dependency installation
+
+### Fixed
+- Docker PATH permission issues by using `python -m uvicorn`
+- Railway PORT variable handling with dedicated entrypoint script
+- Dependency installation in Docker builder stage
+
 ## [v1.7.0] - Testing Infrastructure & Service Layer Refactoring
 ### Added
 - **Comprehensive Test Suite**: Achieved **94% test coverage** across backend and frontend
