@@ -5,3 +5,4 @@ aiosqlite
 pydantic-settings
 websockets
 python-multipart
+psycopg2-binary
