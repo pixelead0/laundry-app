@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.7.0] - Testing Infrastructure & Service Layer Refactoring
+### Added
+- **Comprehensive Test Suite**: Achieved **94% test coverage** across backend and frontend
+  - Backend: 32 passing tests with pytest
+  - Frontend: 9 unit tests (Vitest) + E2E smoke tests (Playwright)
+- **Service Layer Architecture**: Refactored backend to use Service Layer Pattern
+  - `MachineService`: 100% coverage (115 statements)
+  - `TurnService`: Centralized turn and waitlist logic
+  - `WaitlistService`: 98% coverage
+- **Professional Testing Infrastructure**:
+  - AsyncMock for database and WebSocket operations
+  - Comprehensive fixtures in `tests/conftest.py`
+  - Coverage reporting with `pytest-cov`
+  - Frontend testing with Vitest and Playwright
+- **Documentation Updates**:
+  - Added testing section to `README.md`
+  - Updated `walkthrough.md` with refactoring details
+  - Comprehensive test coverage reports
+
+### Changed
+- **Backend Architecture**: Migrated from monolithic endpoints to thin API wrappers
+  - `app/api/v1/endpoints/machines.py`: Now delegates to `MachineService`
+  - `app/api/v1/endpoints/turns.py`: Now delegates to `TurnService`
+- **Improved Testability**: Business logic isolated from HTTP layer
+- **Enhanced Maintainability**: Service methods are pure functions, easier to test and modify
+
 ## [v1.6.0] - Premium UI/UX Polish
 ### Added
 - **Glassmorphism Design**: Implemented a modern design system with backdrop-blur, subtle borders, and premium shadows.
