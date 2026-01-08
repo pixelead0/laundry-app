@@ -1,21 +1,36 @@
 "use client"
 
-import { AssignModal } from "@/components/AssignModal"
-import { MachineCard } from "@/components/MachineCard"
-import { SettingsDialog } from "@/components/SettingsDialog"
+import { SettingsDialog } from "@/components/features/admin/SettingsDialog"
+import { AssignModal } from "@/components/features/machines/AssignModal"
+import { MachineCard } from "@/components/features/machines/MachineCard"
+import { Waitlist } from "@/components/features/waitlist/Waitlist"
+import { Shell } from "@/components/layout/Shell"
 import { Button } from "@/components/ui/button"
-import { Waitlist } from "@/components/Waitlist"
+import { useMachineActions } from "@/hooks/useMachineActions"
+import { useWebSocket } from "@/hooks/useWebSocket"
 import { useMachineStore } from "@/stores/useMachineStore"
-import { Loader2 } from "lucide-react"
+import { Loader2, Settings2 } from "lucide-react"
 import { useEffect, useState } from "react"
-import { Toaster, toast } from "sonner"
+import { Toaster } from "sonner"
 
 export default function AdminPage() {
-    const { machines, fetchMachines, updateMachine, fetchTurns, reportFailure, recoverMachine, completeMachine, cancelAssignment } = useMachineStore()
+    const { machines } = useMachineStore()
+    const {
+        fetchMachines,
+        fetchTurns,
+        reportFailure,
+        recover,
+        complete,
+        cancel
+    } = useMachineActions()
+
     const [assignModalOpen, setAssignModalOpen] = useState(false)
     const [settingsOpen, setSettingsOpen] = useState(false)
     const [selectedMachineId, setSelectedMachineId] = useState<number | null>(null)
     const [isLoaded, setIsLoaded] = useState(false)
+
+    // Centralized real-time updates
+    useWebSocket()
 
     useEffect(() => {
         const init = async () => {
@@ -23,31 +38,6 @@ export default function AdminPage() {
             setIsLoaded(true)
         }
         init()
-
-        // Dynamic WebSocket Host
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-        const host = window.location.hostname
-        const ws = new WebSocket(`${protocol}//${host}:8000/ws`)
-
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data)
-            if (data.type === "machine_update") {
-                updateMachine(data.id, {
-                    status: data.status,
-                    current_cycle_end: data.end_time || null,
-                    current_turn_id: data.turn_id || null
-                })
-                fetchTurns()
-
-                if (data.status === 'occupied') {
-                    toast.info(`Máquina ${data.id} iniciada`)
-                } else if (data.status === 'free') {
-                    toast.success(`¡Máquina ${data.id} finalizada!`)
-                }
-            }
-        }
-
-        return () => ws.close()
     }, [])
 
     const openAssignModal = (id: number) => {
@@ -67,66 +57,69 @@ export default function AdminPage() {
     }
 
     return (
-        <main className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 lg:p-8">
-            <div className="max-w-7xl mx-auto">
-                <header className="mb-8 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Panel de Administración</h1>
-                        <p className="text-slate-500 dark:text-slate-400">Gestionar máquinas, turnos y asignaciones.</p>
+        <Shell
+            title="Administración"
+            subtitle="Gestionar máquinas, turnos y asignaciones en tiempo real."
+            actions={
+                <>
+                    <Button
+                        variant="outline"
+                        onClick={() => setSettingsOpen(true)}
+                        className="bg-white dark:bg-slate-900 border-slate-200 shadow-sm font-bold"
+                    >
+                        <Settings2 className="w-4 h-4 mr-2" />
+                        Configuración
+                    </Button>
+                    <div className="bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest italic border border-slate-800 shadow-lg">
+                        MODO ADMIN
                     </div>
-                    <div className="flex items-center gap-3">
-                        <Button variant="outline" onClick={() => setSettingsOpen(true)}>
-                            Configuración
-                        </Button>
-                        <div className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded">
-                            MODO ADMIN
+                </>
+            }
+        >
+            <div className="flex flex-col lg:flex-row gap-8">
+                <div className="flex-1 space-y-10">
+                    <section>
+                        <div className="flex items-center gap-3 mb-6">
+                            <h2 className="text-xl font-black tracking-tight uppercase italic text-slate-800 dark:text-slate-200">Lavadoras</h2>
                         </div>
-                    </div>
-                </header>
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                            {washers.map(machine => (
+                                <MachineCard
+                                    key={machine.id}
+                                    machine={machine}
+                                    onAssign={openAssignModal}
+                                    onReportFailure={reportFailure}
+                                    onRecover={recover}
+                                    onComplete={complete}
+                                    onCancel={cancel}
+                                />
+                            ))}
+                        </div>
+                    </section>
 
-                <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Main Machine Grid */}
-                    <div className="flex-1 space-y-8">
-                        <section>
-                            <h2 className="text-xl font-semibold mb-4 text-slate-800 dark:text-slate-200">Lavadoras</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                {washers.map(machine => (
-                                    <MachineCard
-                                        key={machine.id}
-                                        machine={machine}
-                                        onAssign={openAssignModal}
-                                        onReportFailure={reportFailure}
-                                        onRecover={recoverMachine}
-                                        onComplete={completeMachine}
-                                        onCancel={cancelAssignment}
-                                    />
-                                ))}
-                            </div>
-                        </section>
-
-                        <section>
-                            <h2 className="text-xl font-semibold mb-4 text-slate-800 dark:text-slate-200">Secadoras</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                {dryers.map(machine => (
-                                    <MachineCard
-                                        key={machine.id}
-                                        machine={machine}
-                                        onAssign={openAssignModal}
-                                        onReportFailure={reportFailure}
-                                        onRecover={recoverMachine}
-                                        onComplete={completeMachine}
-                                        onCancel={cancelAssignment}
-                                    />
-                                ))}
-                            </div>
-                        </section>
-                    </div>
-
-                    {/* Sidebar */}
-                    <aside>
-                        <Waitlist />
-                    </aside>
+                    <section>
+                        <div className="flex items-center gap-3 mb-6">
+                            <h2 className="text-xl font-black tracking-tight uppercase italic text-slate-800 dark:text-slate-200">Secadoras</h2>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                            {dryers.map(machine => (
+                                <MachineCard
+                                    key={machine.id}
+                                    machine={machine}
+                                    onAssign={openAssignModal}
+                                    onReportFailure={reportFailure}
+                                    onRecover={recover}
+                                    onComplete={complete}
+                                    onCancel={cancel}
+                                />
+                            ))}
+                        </div>
+                    </section>
                 </div>
+
+                <aside className="lg:sticky lg:top-8 h-fit">
+                    <Waitlist />
+                </aside>
             </div>
 
             <AssignModal
@@ -138,7 +131,7 @@ export default function AdminPage() {
                 isOpen={settingsOpen}
                 onClose={() => setSettingsOpen(false)}
             />
-            <Toaster />
-        </main>
+            <Toaster position="bottom-right" />
+        </Shell>
     )
 }
