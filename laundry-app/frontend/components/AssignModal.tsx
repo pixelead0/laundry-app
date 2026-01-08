@@ -26,8 +26,9 @@ export function AssignModal({ isOpen, onClose, machineId }: AssignModalProps) {
     const [selectedTurnId, setSelectedTurnId] = useState<string>("none")
     const [loading, setLoading] = useState(false)
 
-    // Filter only waiting people
-    const waitingPeople = turns.filter(t => t.status === 'waiting')
+    // Filter only waiting people based on machine type
+    const machine = useMachineStore(s => s.machines.find(m => m.id === machineId))
+    const waitingPeople = turns.filter(t => t.status === 'waiting' && (!machine || t.type === (machine.type as any)))
 
     const handleAssign = async () => {
         if (!machineId) return
@@ -35,7 +36,7 @@ export function AssignModal({ isOpen, onClose, machineId }: AssignModalProps) {
         setLoading(true)
         try {
             const turnIdParam = selectedTurnId !== "none" ? `&turn_id=${selectedTurnId}` : ""
-            await fetch(`http://localhost:8000/machines/${machineId}/assign?duration_minutes=45${turnIdParam}`, {
+            await fetch(`http://localhost:8000/machines/${machineId}/assign?${turnIdParam}`, {
                 method: 'POST'
             })
             toast.success("Máquina asignada exitosamente")

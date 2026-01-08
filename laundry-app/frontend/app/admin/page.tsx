@@ -2,6 +2,8 @@
 
 import { AssignModal } from "@/components/AssignModal"
 import { MachineCard } from "@/components/MachineCard"
+import { SettingsDialog } from "@/components/SettingsDialog"
+import { Button } from "@/components/ui/button"
 import { Waitlist } from "@/components/Waitlist"
 import { useMachineStore } from "@/stores/useMachineStore"
 import { Loader2 } from "lucide-react"
@@ -9,8 +11,9 @@ import { useEffect, useState } from "react"
 import { Toaster, toast } from "sonner"
 
 export default function AdminPage() {
-    const { machines, fetchMachines, updateMachine, fetchTurns } = useMachineStore()
+    const { machines, fetchMachines, updateMachine, fetchTurns, reportFailure, recoverMachine, completeMachine, cancelAssignment } = useMachineStore()
     const [assignModalOpen, setAssignModalOpen] = useState(false)
+    const [settingsOpen, setSettingsOpen] = useState(false)
     const [selectedMachineId, setSelectedMachineId] = useState<number | null>(null)
     const [isLoaded, setIsLoaded] = useState(false)
 
@@ -71,8 +74,13 @@ export default function AdminPage() {
                         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Panel de Administración</h1>
                         <p className="text-slate-500 dark:text-slate-400">Gestionar máquinas, turnos y asignaciones.</p>
                     </div>
-                    <div className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded">
-                        MODO ADMIN
+                    <div className="flex items-center gap-3">
+                        <Button variant="outline" onClick={() => setSettingsOpen(true)}>
+                            Configuración
+                        </Button>
+                        <div className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded">
+                            MODO ADMIN
+                        </div>
                     </div>
                 </header>
 
@@ -83,7 +91,15 @@ export default function AdminPage() {
                             <h2 className="text-xl font-semibold mb-4 text-slate-800 dark:text-slate-200">Lavadoras</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                 {washers.map(machine => (
-                                    <MachineCard key={machine.id} machine={machine} onAssign={openAssignModal} />
+                                    <MachineCard
+                                        key={machine.id}
+                                        machine={machine}
+                                        onAssign={openAssignModal}
+                                        onReportFailure={reportFailure}
+                                        onRecover={recoverMachine}
+                                        onComplete={completeMachine}
+                                        onCancel={cancelAssignment}
+                                    />
                                 ))}
                             </div>
                         </section>
@@ -92,7 +108,15 @@ export default function AdminPage() {
                             <h2 className="text-xl font-semibold mb-4 text-slate-800 dark:text-slate-200">Secadoras</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                 {dryers.map(machine => (
-                                    <MachineCard key={machine.id} machine={machine} onAssign={openAssignModal} />
+                                    <MachineCard
+                                        key={machine.id}
+                                        machine={machine}
+                                        onAssign={openAssignModal}
+                                        onReportFailure={reportFailure}
+                                        onRecover={recoverMachine}
+                                        onComplete={completeMachine}
+                                        onCancel={cancelAssignment}
+                                    />
                                 ))}
                             </div>
                         </section>
@@ -109,6 +133,10 @@ export default function AdminPage() {
                 isOpen={assignModalOpen}
                 onClose={() => setAssignModalOpen(false)}
                 machineId={selectedMachineId}
+            />
+            <SettingsDialog
+                isOpen={settingsOpen}
+                onClose={() => setSettingsOpen(false)}
             />
             <Toaster />
         </main>

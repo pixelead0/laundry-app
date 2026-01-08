@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Float
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from .database import Base
 
 class Machine(Base):
@@ -11,6 +11,8 @@ class Machine(Base):
     type = Column(String)  # 'washer' or 'dryer'
     capacity = Column(String) # '10kg', '15kg', etc.
     status = Column(String, default="free")  # 'free', 'occupied', 'finishing', 'maintenance'
+    default_cycle_time = Column(Integer, default=45)
+    machine_order = Column(Integer, default=0)
     current_cycle_end = Column(DateTime, nullable=True)
     current_turn_id = Column(Integer, ForeignKey("turns.id"), nullable=True)
 
@@ -24,8 +26,9 @@ class Turn(Base):
     customer_name = Column(String)
     customer_phone = Column(String)
     status = Column(String, default="waiting") # 'waiting', 'in_progress', 'completed', 'cancelled'
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     machine_id = Column(Integer, ForeignKey("machines.id"), nullable=True)
+    type = Column(String, default="washer")  # 'washer' or 'dryer'
 
 class CycleConfig(Base):
     __tablename__ = "cycle_configs"
