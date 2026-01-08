@@ -1,0 +1,16 @@
+- [x] Analyze `PROJECT_CONTEXT.md` gaps <!-- id: 0 -->
+- [x] Create `implementation_plan.md` for documentation updates <!-- id: 1 -->
+- [x] Update `PROJECT_CONTEXT.md` <!-- id: 2 -->
+- [x] Implement Waitlist Backend <!-- id: 3 -->
+    - [x] Modify `models.py` (Add `current_turn_id` to Machine) <!-- id: 4 -->
+    - [x] Modify `main.py` (Add `/turns` endpoints with wait calculation) <!-- id: 5 -->
+    - [x] Update `assign_machine` and `complete_machine` logic <!-- id: 6 -->
+- [x] Implement Waitlist Frontend <!-- id: 7 -->
+    - [x] Create `Waitlist` component (Modify for readOnly) <!-- id: 8 -->
+    - [x] Update `useMachineStore` <!-- id: 9 -->
+    - [x] Update `MachineCard` to show Turn ID (Modify for readOnly) <!-- id: 10 -->
+    - [x] Create `app/admin/page.tsx` (Interactive) <!-- id: 11 -->
+    - [x] Update `app/page.tsx` (Read-only Dashboard) <!-- id: 12 -->
+- [x] Verify End-to-End Flow <!-- id: 13 -->
+- [x] Update All Documentation (Project Context & Walkthrough) <!-- id: 14 -->
+- [x] Translate Frontend to Spanish <!-- id: 15 -->
