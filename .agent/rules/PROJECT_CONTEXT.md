@@ -4,7 +4,7 @@ This document serves as the master context for the Laundry Management Applicatio
 
 ## 1. Project Overview
 **Goal**: A "super aesthetic" premium web application to manage laundry machines (washers/dryers) with real-time status and advanced waitlist management.
-**Status**: v1.6.0 (Premium UI/UX, Feature-Based Architecture, Error Handling).
+**Status**: v1.6.0 (Premium UI/UX, Feature-Based Architecture, Modular Backend).
 **Target Users**:
 - **Public**: View-only dashboard featuring a glassmorphism UI, real-time machine statuses, and categorized waitlists.
 - **Admin**: Comprehensive staff dashboard with machine CRUD, failure reporting, and interactive waitlist management.
@@ -14,9 +14,10 @@ This document serves as the master context for the Laundry Management Applicatio
 
 ### Backend
 - **Language**: Python 3.11+
-- **Framework**: FastAPI
+- **Framework**: FastAPI (Modular Structure)
 - **Database Logic**: SQLAlchemy (Async)
 - **Database Driver**: `aiosqlite` (SQLite) for MVP.
+- **Config**: `pydantic-settings` (Environment variables).
 - **Real-time**: WebSockets (native FastAPI).
 - **Server**: Uvicorn.
 
@@ -43,9 +44,9 @@ This document serves as the master context for the Laundry Management Applicatio
 4.  **Backend** updates DB and broadcasts changes.
 5.  **Frontend** updates UI in real-time.
 
-### Database Models (`backend/models.py`)
-- **Machine**: `id`, `name`, `type` (washer/dryer), `capacity`, `status`, `default_cycle_time`, `machine_order`, `current_cycle_end`, `current_turn_id`.
-- **Turn**: `id`, `customer_name`, `customer_phone`, `status` (waiting/in_progress/completed/cancelled), `type` (washer/dryer), `machine_id`.
+### Database Models (`backend/app/models/`)
+- **Machine**: `id`, `name`, `type` (Enum: washer/dryer), `capacity`, `status` (Enum: free/occupied/maintenance), `default_cycle_time`, `machine_order`, `current_cycle_end`, `current_turn_id`.
+- **Turn**: `id`, `customer_name`, `customer_phone`, `status` (Enum: waiting/in_progress/completed/cancelled), `type` (Enum: washer/dryer), `machine_id`.
 
 ## 4. Project Structure (Key Files)
 
@@ -53,9 +54,16 @@ This document serves as the master context for the Laundry Management Applicatio
 laundry-app/
 ├── start.sh              # Unified Startup script (Backend + Frontend)
 ├── backend/
-│   ├── main.py           # FastAPI entry point & WebSockets
-│   ├── models.py         # SQLAlchemy Pydantic models
-│   └── database.py       # Async SQLite configuration
+│   ├── app/              # Source root
+│   │   ├── api/v1/       # API Routers (machines, turns, websocket)
+│   │   ├── core/         # Config & Enums
+│   │   ├── db/           # Env-based DB session
+│   │   ├── models/       # SQLAlchemy ORM models (Machine, Turn)
+│   │   ├── schemas/      # Pydantic DTOs
+│   │   ├── services/     # Business Logic (WaitlistService)
+│   │   └── main.py       # App entry point
+│   ├── README.md         # Backend documentation
+│   └── requirements.txt  # Python dependencies
 └── frontend/
     ├── app/              # Next.js App Router (Layout, Page, Admin)
     ├── components/
@@ -82,9 +90,8 @@ laundry-app/
 ```bash
 cd laundry-app/backend
 python3 -m pip install -r requirements.txt
-# Run as module to allow absolute imports
-cd ..
-python3 -m uvicorn backend.main:app --port 8000 --reload
+# Run as module from backend directory
+python3 -m uvicorn app.main:app --port 8000 --reload
 ```
 
 #### Frontend
@@ -95,6 +102,7 @@ npm run dev
 ```
 
 ## 6. Key Implementation Details
+- **Enums**: All status and type fields use strict Enums (`app.core.enums`) instead of magic strings.
 - **Premium UI**: Uses custom Tailwind utilities for glassmorphism and `framer-motion` for high-end micro-interactions.
 - **Error Boundaries**: A global `ErrorBoundary` wraps the application to prevent white-screen crashes, providing a graceful recovery UI.
 - **Custom Hooks**: Business logic is separated from UI components, improving testability and code reuse.
