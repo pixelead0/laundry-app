@@ -133,3 +133,11 @@ npm run dev
 
 ## 11. Changelog
 See [CHANGELOG.md](CHANGELOG.md) for version history.
+
+## 12. Versioning & Branching Policy
+> [!IMPORTANT]
+> **CRITICAL REQUISITES**:
+> 1. **History Integrity**: Always maintain a clean and descriptive commit history follow standard conventional commits.
+> 2. **Branching Strategy**: Create dedicated `release/vX.X.X` branches for every major/minor version release to preserve code state.
+> 3. **Release Tags**: Every version documented in `CHANGELOG.md` MUST have a corresponding Git tag (e.g., `v1.6.0`).
+> 4. **On-Demand Releases**: Branches and releases must be created immediately upon request or when a significant hito is reached.
