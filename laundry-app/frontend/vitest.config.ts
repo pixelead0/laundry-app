@@ -8,6 +8,7 @@ export default defineConfig({
         environment: 'jsdom',
         globals: true,
         setupFiles: ['./vitest.setup.ts'],
+        exclude: ['node_modules', 'e2e/**'],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'json', 'html'],
@@ -16,7 +17,7 @@ export default defineConfig({
                     lines: 90
                 }
             },
-            exclude: ['node_modules/', '.next/', 'vitest.config.ts', 'vitest.setup.ts', 'postcss.config.mjs', 'tailwind.config.ts']
+            exclude: ['node_modules/', '.next/', 'vitest.config.ts', 'vitest.setup.ts', 'postcss.config.mjs', 'tailwind.config.ts', 'e2e/**']
         },
     },
     resolve: {
