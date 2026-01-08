@@ -11,7 +11,9 @@ class SimMachine:
 class WaitlistService:
     @staticmethod
     def calculate_wait(waiting_list: list[Turn], all_machines: list[Machine], machine_type: MachineType) -> list[dict]:
-        type_machines = [m for m in all_machines if m.type == machine_type.value]
+        # Handle both enum and string inputs
+        type_value = machine_type.value if hasattr(machine_type, 'value') else machine_type
+        type_machines = [m for m in all_machines if m.type == type_value]
         # Skip machines in maintenance
         available_machines = [m for m in type_machines if m.status != MachineStatus.MAINTENANCE.value]
         free_count = len([m for m in available_machines if m.status == MachineStatus.FREE.value])
