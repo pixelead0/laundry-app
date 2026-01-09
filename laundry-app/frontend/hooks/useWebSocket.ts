@@ -5,12 +5,13 @@ export const useWebSocket = () => {
     const { updateMachine, fetchTurns } = useMachineStore();
 
     useEffect(() => {
+        // 1. Get from env or fallback to current host
         let wsUrl = process.env.NEXT_PUBLIC_WS_URL ||
             `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.hostname}:8000/ws`;
 
-        // Safety: Force WSS for Railway production domains
-        if (wsUrl.includes('.up.railway.app') && wsUrl.startsWith('ws://')) {
-            wsUrl = wsUrl.replace('ws://', 'wss://');
+        // 2. Absolute Safety: Force WSS if the frontend is served via HTTPS
+        if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+            wsUrl = wsUrl.replace(/^ws:\/\//i, 'wss://');
         }
 
         const ws = new WebSocket(wsUrl);

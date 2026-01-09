@@ -1,14 +1,21 @@
 import { Machine, Turn } from '../types';
 
 const API_URL = (() => {
-    let url = process.env.NEXT_PUBLIC_API_URL ||
-        (typeof window !== 'undefined'
-            ? `${window.location.protocol}//${window.location.hostname}:8000`
-            : 'http://localhost:8000');
-
-    if (url.includes('.up.railway.app') && url.startsWith('http://')) {
-        url = url.replace('http://', 'https://');
+    // 1. Get from env or fallback to current host
+    let url = process.env.NEXT_PUBLIC_API_URL || '';
+    if (!url && typeof window !== 'undefined') {
+        url = `${window.location.protocol}//${window.location.hostname}:8000`;
     }
+
+    // 2. Clean trailing slashes to avoid double-slashes in fetches
+    url = url.replace(/\/+$/, '');
+
+    // 3. Absolute Safety: Force HTTPS if the frontend is served via HTTPS
+    // This prevents "Mixed Content" errors even if the environment variable is wrong.
+    if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+        url = url.replace(/^http:\/\//i, 'https://');
+    }
+
     return url;
 })();
 
