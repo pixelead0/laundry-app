@@ -19,18 +19,14 @@ class WaitlistService:
         free_count = len([m for m in available_machines if m.status == MachineStatus.FREE.value])
 
         occupied = []
-        for m in available_machines:
             if m.status == MachineStatus.OCCUPIED.value and m.current_cycle_end:
-                # Force UTC awareness if naive
                 end = m.current_cycle_end
-                if end.tzinfo is None:
-                    end = end.replace(tzinfo=timezone.utc)
                 occupied.append(SimMachine(end, m.default_cycle_time))
 
         occupied.sort(key=lambda m: m.current_cycle_end)
 
         results = []
-        now = datetime.now(timezone.utc)
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         sim_occupied = list(occupied)
         current_free = free_count
 

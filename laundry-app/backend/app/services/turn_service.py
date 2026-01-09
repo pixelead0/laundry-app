@@ -25,7 +25,7 @@ class TurnService:
 
     @staticmethod
     async def create(db: AsyncSession, turn_data: dict):
-        new_turn = Turn(**turn_data, status=TurnStatus.WAITING.value, created_at=datetime.now(timezone.utc))
+        new_turn = Turn(**turn_data, status=TurnStatus.WAITING.value, created_at=datetime.now(timezone.utc).replace(tzinfo=None))
         db.add(new_turn)
         await db.commit()
         await db.refresh(new_turn)
