@@ -1,9 +1,16 @@
 import { Machine, Turn } from '../types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ||
-    (typeof window !== 'undefined'
-        ? `${window.location.protocol}//${window.location.hostname}:8000`
-        : 'http://localhost:8000');
+const API_URL = (() => {
+    let url = process.env.NEXT_PUBLIC_API_URL ||
+        (typeof window !== 'undefined'
+            ? `${window.location.protocol}//${window.location.hostname}:8000`
+            : 'http://localhost:8000');
+
+    if (url.includes('.up.railway.app') && url.startsWith('http://')) {
+        url = url.replace('http://', 'https://');
+    }
+    return url;
+})();
 
 export const api = {
     async fetchMachines(): Promise<Machine[]> {

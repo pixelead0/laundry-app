@@ -6,7 +6,12 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     # CORS
-    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000"]
+    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:3001"]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if isinstance(self.BACKEND_CORS_ORIGINS, str):
+            self.BACKEND_CORS_ORIGINS = [i.strip() for i in self.BACKEND_CORS_ORIGINS.split(",")]
 
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./laundry.db"
