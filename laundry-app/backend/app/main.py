@@ -49,9 +49,19 @@ async def seed_db(db):
 
 @app.on_event("startup")
 async def startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    print(f"Backend: Attempting to connect to DB: {settings.async_database_url.split('@')[-1]}")
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        print("Backend: DB metadata creation successful.")
+    except Exception as e:
+        print(f"Backend ERROR during startup metadata creation: {e}")
+        # We continue to allow the health check to work even if DB is failing
 
     # Seed data
-    async with SessionLocal() as session:
-        await seed_db(session)
+    try:
+        async with SessionLocal() as session:
+            await seed_db(session)
+        print("Backend: Seed data check complete.")
+    except Exception as e:
+        print(f"Backend ERROR during seeding: {e}")
