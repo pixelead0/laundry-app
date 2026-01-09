@@ -6,7 +6,8 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     # CORS
-    BACKEND_CORS_ORIGINS: list[str] = ["*"]
+    # Use Any to let pydantic-settings accept raw strings from ENV
+    BACKEND_CORS_ORIGINS: list[str] | str = ["*"]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -16,7 +17,12 @@ class Settings(BaseSettings):
             if val.startswith("[") and val.endswith("]"):
                 val = val[1:-1]
             val = val.replace('"', '').replace("'", "")
-            self.BACKEND_CORS_ORIGINS = [i.strip() for i in val.split(",") if i.strip()]
+            if val == "*":
+                self.BACKEND_CORS_ORIGINS = ["*"]
+            else:
+                self.BACKEND_CORS_ORIGINS = [i.strip() for i in val.split(",") if i.strip()]
+        elif not self.BACKEND_CORS_ORIGINS:
+            self.BACKEND_CORS_ORIGINS = ["*"]
 
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./laundry.db"
