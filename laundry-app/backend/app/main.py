@@ -26,7 +26,7 @@ app.include_router(api_router) # Top level or prefixed
 async def health_check():
     return {
         "status": "healthy",
-        "version": "1.7.0",
+        "version": "1.8.0",
         "service": "laundry-backend"
     }
 
