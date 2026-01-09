@@ -1,7 +1,9 @@
 import { Machine, Turn } from '../types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ||
-    (typeof window !== 'undefined' ? `http://${window.location.hostname}:8000` : 'http://localhost:8000');
+    (typeof window !== 'undefined'
+        ? `${window.location.protocol}//${window.location.hostname}:8000`
+        : 'http://localhost:8000');
 
 export const api = {
     async fetchMachines(): Promise<Machine[]> {
