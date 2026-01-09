@@ -10,13 +10,19 @@ from app.models.machine import Machine
 app = FastAPI(title=settings.PROJECT_NAME)
 
 # CORS
+origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS]
+if not origins:
+    origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+print(f"Backend starting with CORS origins: {origins}")
 
 # Routes
 app.include_router(api_router) # Top level or prefixed
