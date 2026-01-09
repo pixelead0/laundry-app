@@ -9,6 +9,15 @@ RUN npm ci
 
 # Copy source and build
 COPY . .
+
+# Declare build arguments for Next.js environment variables
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_WS_URL
+
+# Set them as environment variables for the build process
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
+
 RUN npm run build
 
 # Production stage
