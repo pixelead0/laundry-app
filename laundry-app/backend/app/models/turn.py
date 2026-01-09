@@ -10,6 +10,6 @@ class Turn(Base):
     customer_name = Column(String)
     customer_phone = Column(String)
     status = Column(String, default=TurnStatus.WAITING.value) # 'waiting', 'in_progress', 'completed', 'cancelled'
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     machine_id = Column(Integer, ForeignKey("machines.id"), nullable=True)
     type = Column(String, default=MachineType.WASHER.value)

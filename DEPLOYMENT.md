@@ -210,6 +210,13 @@ NEXT_PUBLIC_SENTRY_DSN=https://your-sentry-dsn
 
 ## Troubleshooting
 
+### Troubleshooting Railway Deployment
+
+- **Mixed Content (HTTP vs HTTPS)**: If the frontend reports blocked content, ensure `NEXT_PUBLIC_API_URL` uses `https://`. Our v1.8.0 code now includes `HttpsMiddleware` and protocol enforcement in the frontend to mitigate this.
+- **CORS Issues**: Ensure `BACKEND_CORS_ORIGINS` is set in the backend service. Set to `*` for testing, or a comma-separated list of allowed frontend domains for production.
+- **Port Binding**: Do not set a manual `PORT` variable unless required by a custom entrypoint. Railway provides this automatically.
+- **Trailing Slashes**: We standardized routes to not require trailing slashes. If using a custom router, ensuring consistency prevents 307 redirects that can drop the HTTPS protocol.
+
 ### Backend Won't Start
 - Check `DATABASE_URL` is correct
 - Verify PostgreSQL is running

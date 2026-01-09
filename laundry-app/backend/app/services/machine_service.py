@@ -50,7 +50,7 @@ class MachineService:
         machine = await MachineService.get_by_id(db, id)
 
         final_duration = duration_minutes if duration_minutes is not None else machine.default_cycle_time
-        end_time = datetime.now(timezone.utc) + timedelta(minutes=final_duration)
+        end_time = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=final_duration)
 
         machine.status = MachineStatus.OCCUPIED.value
         machine.current_cycle_end = end_time
