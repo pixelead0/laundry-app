@@ -19,6 +19,7 @@ class WaitlistService:
         free_count = len([m for m in available_machines if m.status == MachineStatus.FREE.value])
 
         occupied = []
+        for m in available_machines:
             if m.status == MachineStatus.OCCUPIED.value and m.current_cycle_end:
                 end = m.current_cycle_end
                 occupied.append(SimMachine(end, m.default_cycle_time))
