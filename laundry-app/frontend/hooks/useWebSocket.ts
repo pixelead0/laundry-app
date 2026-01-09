@@ -5,9 +5,10 @@ export const useWebSocket = () => {
     const { updateMachine, fetchTurns } = useMachineStore();
 
     useEffect(() => {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.location.hostname;
-        const ws = new WebSocket(`${protocol}//${host}:8000/ws`);
+        const wsUrl = process.env.NEXT_PUBLIC_WS_URL ||
+            `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.hostname}:8000/ws`;
+
+        const ws = new WebSocket(wsUrl);
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
