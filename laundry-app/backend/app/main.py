@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy.future import select
 
 from app.api.v1.api import api_router
@@ -7,7 +8,14 @@ from app.core.config import settings
 from app.db.session import engine, Base, SessionLocal
 from app.models.machine import Machine
 
+class HttpsMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        if request.headers.get("x-forwarded-proto") == "https":
+            request.scope["scheme"] = "https"
+        return await call_next(request)
+
 app = FastAPI(title=settings.PROJECT_NAME)
+app.add_middleware(HttpsMiddleware)
 
 # CORS
 origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS]

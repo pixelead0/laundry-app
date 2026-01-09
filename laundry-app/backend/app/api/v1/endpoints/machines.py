@@ -7,11 +7,11 @@ from app.services.machine_service import MachineService
 
 router = APIRouter()
 
-@router.get("/", response_model=list[MachineResponse])
+@router.get("", response_model=list[MachineResponse])
 async def get_machines(db: AsyncSession = Depends(get_db)):
     return await MachineService.get_all(db)
 
-@router.post("/", response_model=MachineResponse)
+@router.post("", response_model=MachineResponse)
 async def create_machine(machine: MachineCreate, db: AsyncSession = Depends(get_db)):
     return await MachineService.create(db, machine.dict())
 
