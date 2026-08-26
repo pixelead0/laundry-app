@@ -24,7 +24,7 @@ class WaitlistService:
                 end = m.current_cycle_end
                 occupied.append(SimMachine(end, m.default_cycle_time))
 
-        occupied.sort(key=lambda m: m.current_cycle_end)
+        occupied.sort(key=lambda m: m.current_cycle_end.replace(tzinfo=None) if getattr(m.current_cycle_end, 'tzinfo', None) else m.current_cycle_end)
 
         results = []
         now = datetime.now(timezone.utc).replace(tzinfo=None)
@@ -37,19 +37,20 @@ class WaitlistService:
                 current_free -= 1
                 sim_end = now + timedelta(minutes=45)
                 sim_occupied.append(SimMachine(sim_end, 45))
-                sim_occupied.sort(key=lambda m: m.current_cycle_end)
+                sim_occupied.sort(key=lambda m: m.current_cycle_end.replace(tzinfo=None) if getattr(m.current_cycle_end, 'tzinfo', None) else m.current_cycle_end)
             else:
                 if sim_occupied:
                     m = sim_occupied.pop(0)
-                    wait_sec = (m.current_cycle_end - now).total_seconds()
+                    cycle_end = m.current_cycle_end.replace(tzinfo=None) if getattr(m.current_cycle_end, 'tzinfo', None) else m.current_cycle_end
+                    wait_sec = (cycle_end - now).total_seconds()
                     wait_min = int(max(0, wait_sec / 60))
 
                     cycle_dur = getattr(m, 'default_cycle_time', 45)
-                    start = max(now, m.current_cycle_end)
+                    start = max(now, cycle_end)
                     new_end = start + timedelta(minutes=cycle_dur)
 
                     sim_occupied.append(SimMachine(new_end, cycle_dur))
-                    sim_occupied.sort(key=lambda m: m.current_cycle_end)
+                    sim_occupied.sort(key=lambda m: m.current_cycle_end.replace(tzinfo=None) if getattr(m.current_cycle_end, 'tzinfo', None) else m.current_cycle_end)
                 else:
                     wait_min = 30 # Fallback
 

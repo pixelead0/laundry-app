@@ -47,8 +47,10 @@ class TurnService:
 
     @staticmethod
     async def get_waitlist_with_estimates(db: AsyncSession):
-        """Get waiting turns with estimated wait times"""
-        waiting_turns = await TurnService.get_all(db, status=TurnStatus.WAITING.value)
+        """Get waiting and in_progress turns with estimated wait times"""
+        all_active_turns = await TurnService.get_all(db)
+        waiting_turns = [t for t in all_active_turns if t.status == TurnStatus.WAITING.value]
+        in_progress_turns = [t for t in all_active_turns if t.status == TurnStatus.IN_PROGRESS.value]
 
         # Get all machines
         machines_result = await db.execute(select(Machine))
@@ -64,7 +66,19 @@ class TurnService:
         washer_waits = WaitlistService.calculate_wait(washer_turns, washers, 'washer')
         dryer_waits = WaitlistService.calculate_wait(dryer_turns, dryers, 'dryer')
 
+        in_progress_formatted = [{
+            "id": t.id,
+            "customer_name": t.customer_name,
+            "customer_phone": t.customer_phone,
+            "status": t.status,
+            "type": t.type,
+            "estimated_wait": 0,
+            "created_at": t.created_at,
+            "machine_id": t.machine_id
+        } for t in in_progress_turns]
+
         return {
-            "washers": washer_waits,
-            "dryers": dryer_waits
+            "washers": washer_waits + [t for t in in_progress_formatted if t["type"] == 'washer'],
+            "dryers": dryer_waits + [t for t in in_progress_formatted if t["type"] == 'dryer']
         }
+

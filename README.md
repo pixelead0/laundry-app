@@ -22,13 +22,16 @@ For detailed technical specs, see [PROJECT_CONTEXT.md](.agent/rules/PROJECT_CONT
 
 ## 🛠️ Quick Start
 
-### Option 1: Local Development (Recommended for Development)
+### Option 1: Local Development (Recommended)
 
 Ensure you have Node.js 20+ and Python 3.11+ installed.
 
 ```bash
-# Start both Backend and Frontend concurrently
-./start.sh
+# 1. Automated Setup (venv, Python & Node.js dependencies, .env)
+make setup
+
+# 2. Start both Backend and Frontend concurrently
+make dev   # or ./start.sh
 ```
 
 - **Dashboard (Public)**: [http://localhost:3000](http://localhost:3000)
